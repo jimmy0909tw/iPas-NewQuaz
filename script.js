@@ -26,7 +26,7 @@ let quiz = [];
 let userAnswers = [];
 let current = 0;
 
-async function startFocusQuiz() {
+async function loadQuestions() {
     const res = await fetch('questions3.csv');
     const text = await res.text();
     const lines = text.trim().split('\n');
@@ -121,3 +121,5 @@ function showResult() {
         ` : `<div>全部答對，太厲害了！</div>`}
     `;
 }
+
+window.onload = loadQuestions;
