@@ -69,7 +69,7 @@
 68,四分位距（IQR）的主要優勢之一是它對什麼不那麼敏感？,A. 中位數,B. 均值,C. 異常值,D. 數據量,C,IQR不考慮數據的極端值，因此受異常值影響小。,
 69,VAE訓練中的「重參數化技巧 (Reparameterization Trick)」主要用於解決什麼問題？,A. 防止模型過擬合,B. 讓梯度可以從重建損失反向傳播回潛在分佈的參數,C. 加速模型訓練速度,D. 處理缺失數據,B,重參數化技巧允許梯度通過採樣操作傳播。,
 70,VAE的解碼器接收什麼作為輸入來生成新的數據？,A. 原始輸入數據,B. 從編碼器輸出的潛在分佈中採樣得到的潛在向量,C. 固定的隨機數,D. 其他模型的輸出,B,解碼器從潛在空間採樣點來生成。,
-71,如果你想在Google Cloud上使用OpenAI的GPT-4模型，你會選擇哪個服務？,A. Google Kubernetes Engine,B. Google Cloud Storage,C. Vertex AI,D. Azure OpenAI 服務,C,Vertex AI是Google Cloud的整合ML平台，支持多種模型包括像GPT-4這種通用大型模型（通過API或直接使用）。[Note: This question might be tricky if the user literally thought about *Azure* OpenAI Service. But in the context of Google Cloud, Vertex AI is the right answer for general LLM usage on GCP.]
+71,如果你想在Google Cloud上使用OpenAI的GPT-4模型，你會選擇哪個服務？,A. Google Kubernetes Engine,B. Google Cloud Storage,C. Vertex AI,D. Azure OpenAI 服務,C,Vertex AI是Google Cloud的整合ML平台，支持多種模型包括像GPT-4這種通用大型模型（通過API或直接使用）。[Note: This question might be tricky if the user literally thought about *Azure* OpenAI Service. But in the context of Google Cloud，Vertex AI is the right answer for general LLM usage on GCP.]
 72,下列哪個不是數據科學中常見的「探索性數據分析（EDA）」活動？,A. 計算數據的平均值和標準差,B. 繪製數據分佈的直方圖,C. 訓練機器學習模型,D. 查找數據集中的相關性,C,訓練機器學習模型屬於建模階段，而非探索。,
 73,將原始數據轉換成適合分析的統一格式，是ETL中哪個階段的任務？,A. Extract,B. Transform,C. Load,D. Validate,B,Transform階段負責數據的清理和格式統一。,
 74,下列哪個指標用於評估機器翻譯中，翻譯結果與參考譯文的相似度？,A. FID,B. MSE,C. BLEU,D. Perplexity,C,BLEU專為機器翻譯質量評估設計。,
