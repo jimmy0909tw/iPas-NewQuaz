@@ -1,11 +1,14 @@
 body {
-    font-family: sans-serif;
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
     padding: 20px;
     max-width: 800px;
     margin: auto;
 }
 h1 {
     text-align: center;
+    margin-bottom: 30px;
 }
 .question {
     font-weight: bold;
@@ -30,4 +33,9 @@ h1 {
 }
 .wrong-list {
     margin-top: 20px;
+}
+button {
+    padding: 8px 16px;
+    margin-top: 10px;
+    cursor: pointer;
 }
