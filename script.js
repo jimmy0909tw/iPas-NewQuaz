@@ -1,125 +1,119 @@
-function parseCSVLine(line) {
-    const cells = [];
-    let re = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
-    let match;
-    while ((match = re.exec(line)) !== null) {
-        let cell = match[1];
-        if (cell.startsWith('"') && cell.endsWith('"')) {
-            cell = cell.slice(1, -1);
-        }
-        cells.push(cell.trim());
-    }
-
-    const answerLetter = cells[6].toUpperCase();
-    const answerIndex = ['A', 'B', 'C', 'D'].indexOf(answerLetter);
-
-    return {
-        id: cells[0],
-        question: cells[1],
-        options: [cells[2], cells[3], cells[4], cells[5]],
-        answer: answerIndex,
-        explanation: cells[7] || ''
-    };
-}
-
-let quiz = [];
+let quizData = [];
+let currentQuestionIndex = 0;
 let userAnswers = [];
-let current = 0;
+let wrongAnswerIds = [];
 
-async function loadQuestions() {
-    const res = await fetch('questions3.csv');
-    const text = await res.text();
-    const lines = text.trim().split('\n');
-    quiz = lines.slice(1).map(line => parseCSVLine(line));
-    userAnswers = Array(quiz.length);
-    current = 0;
-    renderQuestion();
+function parseCSV(csvText) {
+  const lines = csvText.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const values = line.split(',');
+    const obj = {};
+    headers.forEach((header, i) => {
+      obj[header.trim()] = values[i].trim();
+    });
+    return obj;
+  });
 }
 
-function renderQuestion() {
-    const q = quiz[current];
-    const container = document.getElementById('quiz-container');
-    container.innerHTML = `
-        <div class="question">(${current + 1}/${quiz.length}) ${q.question}</div>
-        <form id="options-form" class="options">
-            ${q.options.map((opt, i) => `
-                <label>
-                    <input type="radio" name="option" value="${i}" required>
-                    ${opt}
-                </label>
-            `).join('')}
-            <div class="button-area">
-                <button type="submit">提交答案</button>
-            </div>
-        </form>
-        <div class="explanation" id="explanation" style="display:none;"></div>
-    `;
-    document.getElementById('options-form').onsubmit = function(e) {
-        e.preventDefault();
-        const ans = parseInt(e.target.option.value, 10);
-        userAnswers[current] = ans;
-        showAnswer(q, ans);
-    };
+function shuffleArray(array) {
+  return array.sort(() => Math.random() - 0.5);
 }
 
-function showAnswer(q, ans) {
-    const exp = document.getElementById('explanation');
-    const isCorrect = ans === q.answer;
-    exp.style.display = 'block';
-    exp.innerHTML = isCorrect
-        ? "✔️ 答對了！<br>" + q.explanation
-        : `<span class="wrong">❌ 答錯了！</span><br>正確答案：${q.options[q.answer]}<br>${q.explanation}`;
+function showQuestion() {
+  const question = quizData[currentQuestionIndex];
+  document.getElementById('question').textContent = question.question;
+  const optionsContainer = document.getElementById('options');
+  optionsContainer.innerHTML = '';
 
-    if (current < quiz.length - 1) {
-        if (!document.getElementById('next-btn')) {
-            let btn = document.createElement('button');
-            btn.id = 'next-btn';
-            btn.innerText = '下一題';
-            btn.onclick = () => {
-                current++;
-                renderQuestion();
-            };
-            exp.parentElement.appendChild(btn);
-        }
-    } else {
-        if (!document.getElementById('finish-btn')) {
-            let btn = document.createElement('button');
-            btn.id = 'finish-btn';
-            btn.innerText = '看成績';
-            btn.onclick = showResult;
-            exp.parentElement.appendChild(btn);
-        }
+  ['A', 'B', 'C', 'D'].forEach(letter => {
+    const optionText = question[letter];
+    if (optionText) {
+      const button = document.createElement('button');
+      button.textContent = `${letter}. ${optionText}`;
+      button.onclick = () => selectAnswer(letter);
+      optionsContainer.appendChild(button);
     }
+  });
+}
+
+function selectAnswer(letter) {
+  userAnswers.push({ id: quizData[currentQuestionIndex].id, answer: letter });
+  currentQuestionIndex++;
+  if (currentQuestionIndex < quizData.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
 }
 
 function showResult() {
-    document.getElementById('quiz-container').style.display = 'none';
-    const result = document.getElementById('result-container');
-    let score = 0;
-    let wrongList = [];
-    for (let i = 0; i < quiz.length; i++) {
-        if (userAnswers[i] === quiz[i].answer) score++;
-        else wrongList.push({ q: quiz[i], ans: userAnswers[i] });
+  let correctCount = 0;
+  wrongAnswerIds = [];
+
+  userAnswers.forEach((entry, i) => {
+    const correct = quizData[i].correct;
+    if (entry.answer === correct) {
+      correctCount++;
+    } else {
+      wrongAnswerIds.push(entry.id);
     }
-    result.style.display = 'block';
-    result.innerHTML = `
-        <div class="score">你的分數：${score} / ${quiz.length}</div>
-        ${wrongList.length > 0 ? `
-            <div class="wrong-list">
-                <strong>你答錯的題目：</strong>
-                <ol>
-                ${wrongList.map(w => `
-                    <li>
-                        <div class="question">${w.q.question}</div>
-                        <div>你的答案：${w.ans !== undefined ? w.q.options[w.ans] : "(未作答)"}</div>
-                        <div>正確答案：${w.q.options[w.q.answer]}</div>
-                        <div>說明：${w.q.explanation}</div>
-                    </li>
-                `).join('')}
-                </ol>
-            </div>
-        ` : `<div>全部答對，太厲害了！</div>`}
-    `;
+  });
+
+  document.getElementById('result').innerHTML = `
+    <p>答對 ${correctCount} 題 / 共 ${quizData.length} 題</p>
+    <p>錯題 ID：${wrongAnswerIds.join(', ')}</p>
+    <button onclick="startSecondQuiz()">錯題優先重考</button>
+    <button onclick="clearWrongAnswers()">清除錯題記錄</button>
+  `;
+
+  saveWrongAnswers(wrongAnswerIds);
 }
 
-window.onload = loadQuestions;
+function saveWrongAnswers(wrongIds) {
+  localStorage.setItem('wrongIds', JSON.stringify(wrongIds));
+}
+
+function getWrongAnswers() {
+  const data = localStorage.getItem('wrongIds');
+  return data ? JSON.parse(data) : [];
+}
+
+function clearWrongAnswers() {
+  localStorage.removeItem('wrongIds');
+  alert('錯題記錄已清除');
+}
+
+function generateSecondQuiz(allQuestions, totalCount = 100) {
+  const wrongIds = getWrongAnswers();
+  const wrongQuestions = allQuestions.filter(q => wrongIds.includes(q.id));
+  const remainingQuestions = allQuestions.filter(q => !wrongIds.includes(q.id));
+  const neededCount = totalCount - wrongQuestions.length;
+  const newQuestions = shuffleArray(remainingQuestions).slice(0, neededCount);
+  const finalQuiz = shuffleArray([...wrongQuestions, ...newQuestions]);
+  return finalQuiz;
+}
+
+function startQuiz() {
+  fetch('questions3.csv')
+    .then(response => response.text())
+    .then(csvText => {
+      const allQuestions = parseCSV(csvText);
+      quizData = shuffleArray(allQuestions).slice(0, 100);
+      currentQuestionIndex = 0;
+      userAnswers = [];
+      showQuestion();
+    });
+}
+
+function startSecondQuiz() {
+  fetch('questions3.csv')
+    .then(response => response.text())
+    .then(csvText => {
+      const allQuestions = parseCSV(csvText);
+      quizData = generateSecondQuiz(allQuestions, 100);
+      currentQuestionIndex = 0;
+      userAnswers = [];
+      showQuestion();
+    });
+}
