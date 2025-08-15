@@ -20,7 +20,7 @@ async function loadQuestions() {
     return questions1.concat(questions2);
 }
 
-// 單行 CSV 解析
+// 單行 CSV 解析（答案為 a/b/c/d）
 function parseCSVLine(line) {
     const cells = [];
     let re = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
@@ -36,7 +36,7 @@ function parseCSVLine(line) {
         id: cells[0],
         question: cells[1],
         options: [cells[2], cells[3], cells[4], cells[5]],
-        answer: parseInt(cells[6], 10) - 1,
+        answer: ['a', 'b', 'c', 'd'].indexOf(cells[6].toLowerCase()),
         explanation: cells[7]
     };
 }
@@ -54,7 +54,7 @@ function renderQuestion() {
             ${q.options.map((opt, i) => `
                 <label>
                     <input type="radio" name="option" value="${i}" required>
-                    ${String.fromCharCode(65 + i)}. ${opt}
+                    ${opt}
                 </label>
             `).join('')}
             <div class="button-area">
@@ -78,7 +78,7 @@ function showAnswer(q, ans) {
     exp.style.display = 'block';
     exp.innerHTML = isCorrect
         ? "✔️ 答對了！<br>" + q.explanation
-        : `<span class="wrong">❌ 答錯了！</span><br>正確答案：${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}<br>${q.explanation}`;
+        : `<span class="wrong">❌ 答錯了！</span><br>正確答案：${String.fromCharCode(65 + q.answer)}<br>${q.explanation}`;
 
     if (current < quiz.length - 1) {
         if (!document.getElementById('next-btn')) {
@@ -124,8 +124,8 @@ function showResult() {
                 ${wrongList.map(w => `
                     <li>
                         <div class="question">${w.q.question}</div>
-                        <div>你的答案：${w.ans !== undefined ? String.fromCharCode(65 + w.ans) + ". " + (w.q.options[w.ans] || "(未選)") : "(未作答)"}</div>
-                        <div>正確答案：${String.fromCharCode(65 + w.q.answer)}. ${w.q.options[w.q.answer]}</div>
+                        <div>你的答案：${w.ans !== undefined ? String.fromCharCode(65 + w.ans) : "(未作答)"}</div>
+                        <div>正確答案：${String.fromCharCode(65 + w.q.answer)}</div>
                         <div>說明：${w.q.explanation}</div>
                     </li>
                 `).join('')}
@@ -158,7 +158,6 @@ async function restartQuiz() {
 
     const seenIds = quiz.map(q => q.id);
 
-    // 找出錯題或未作答的題目
     const wrongOrUnansweredIds = [];
     for (let i = 0; i < quiz.length; i++) {
         if (userAnswers[i] !== quiz[i].answer) {
@@ -169,11 +168,9 @@ async function restartQuiz() {
     const wrongQuestions = all.filter(q => wrongOrUnansweredIds.includes(q.id));
     const unseenQuestions = all.filter(q => !seenIds.includes(q.id));
 
-    // 計算還需要補幾題
     const needed = 100 - wrongQuestions.length;
     const extra = pickRandom(unseenQuestions, needed);
 
-    // 合併錯題 + 新題目
     const newQuiz = wrongQuestions.concat(extra);
 
     if (newQuiz.length === 0) {
