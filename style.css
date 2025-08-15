@@ -34,8 +34,20 @@ h1 {
 .wrong-list {
     margin-top: 20px;
 }
+
+/* 🔵 按鈕樣式：藍色 + 放大 */
 button {
-    padding: 8px 16px;
-    margin-top: 10px;
+    padding: 16px 32px;         /* 原本的兩倍大小 */
+    font-size: 1.2em;           /* 放大字體 */
+    background-color: #007bff; /* 藍色背景 */
+    color: white;              /* 白色文字 */
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3; /* 深藍 hover 效果 */
 }
