@@ -2,44 +2,13 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>錯題重點測驗</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-    button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-    #question {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    #options button {
-      display: block;
-      width: 100%;
-      margin-bottom: 8px;
-      text-align: left;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-  </style>
+  <title>線上題庫系統</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <h1>錯題重點測驗</h1>
-  <button onclick="startQuiz()">開始測驗</button>
-
-  <div id="question"></div>
-  <div id="options"></div>
-  <div id="result"></div>
-
-  <script src="script.js"></script> <!-- 或改成 quiz.js -->
+  <h1>線上題庫系統</h1>
+  <div id="quiz-container"></div>
+  <div id="result-container" style="display:none;"></div>
+  <script src="quiz.js"></script>
 </body>
 </html>
