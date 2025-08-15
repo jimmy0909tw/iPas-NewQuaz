@@ -30,7 +30,7 @@ async function loadQuestions() {
     const res = await fetch('questions3.csv');
     const text = await res.text();
     const lines = text.trim().split('\n');
-    quiz = lines.slice(1).map(line => parseCSVLine(line));
+    quiz = lines.slice(1).map(line => parseCSVLine(line)); // ← 全部題目，不隨機
     userAnswers = Array(quiz.length);
     current = 0;
     renderQuestion();
